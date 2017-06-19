@@ -1,23 +1,23 @@
 import React from "react";
 import Radium from "radium";
-import PropTypes from "prop-types";
 import Text from "../Text";
+import PropTypes from "prop-types";
 import { black, white, geyser, shuttleGray, linkBlue } from "../../style/color";
-import { borderWidth } from "../../style/border";
 import { fontWeight, fontWeightBold } from "../../style/font";
 import speed from "../../style/speed";
+import { navbar } from "../../style/zIndex";
+import Container from "../Container";
 
 const styles = {
   nav: {
-    backgroundColor: colors.bgPrimary,
     position: "relative",
     textAlign: "center",
     transform: "translateZ(0)",
-    zIndex: zIndex.globalHeader
+    zIndex: navbar
   },
 
   container: {
-    borderBottom: `1px solid ${colors.borderPrimary}`,
+    borderBottom: `1px solid ${geyser}`,
     overflow: "hidden"
   },
 
@@ -52,11 +52,11 @@ Navigation.propTypes = {
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
   height: PropTypes.number,
   sticky: PropTypes.bool,
-  style: propTypes.style
+  style: PropTypes.style
 };
 
 Navigation.defaultProps = {
   height: 80
 };
 
-export default radium(Navigation);
+export default Radium(Navigation);

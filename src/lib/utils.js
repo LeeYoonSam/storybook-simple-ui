@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 export const calcActiveStyles = (styleSwitches = {}) => {
   const activeStyles = ["default"];
   Object.keys(styleSwitches).forEach(styleKey => {
@@ -29,3 +31,7 @@ export const calculateStyles = (styles = {}, switches) => {
   });
   return mergeStyles(activeStyles);
 };
+
+export const propStyle = PropTypes.objectOf(
+  PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object])
+);

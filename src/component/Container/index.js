@@ -1,62 +1,73 @@
 import React from "react";
+import Radium from "radium";
 import PropTypes from "prop-types";
-import Text from "../Text";
-import colors from "../../style/color";
+import cn from "classnames";
+import { white, black } from "../../style/color";
+import { borderWidth } from "../../style/border";
 
-const sectionHeaderStyle = {
-  display: "flex",
-  paddingTop: "1rem",
-  paddingBottom: "1rem",
-  flexDirection: "row",
-  alignItems: "center",
-  borderBottom: `${borderWidth} solid ${white}`
-};
+const containerWidth = 1290;
+const gutterWidth = 30;
+const maxWidth = containerWidth + gutterWidth * 4;
+const mediaQuery = `${maxWidth * 0.0625}em`;
 
-const style = calculateStyles(
-  {
-    default: {
-      fontFamily,
-      fontSize,
-      fontWeight,
-      color: colors[color]
-    },
-    bold: {
-      fontWeight: fontWeightBold
-    },
-    thin: {
-      fontWeight: fontWeightThin
-    },
-    extraSmall: {
-      fontSize: fontSizeExtraSmall
-    },
-    large: {
-      fontSize: fontSizeLarge
-    },
-    mini: {
-      fontSize: fontSizeMini
-    },
-    small: {
-      fontSize: fontSizeSmall
-    }
-  },
-  {
-    bold: weight === "bold",
-    thin: weight === "thin",
-    extraSmall: size === "extra-small",
-    large: size === "large",
-    mini: size === "mini",
-    small: size === "small"
+const styles = `
+  .container {
+    box-sizing: border-box;
+    max-width: ${containerWidth}px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
   }
-);
+  .container::after {
+    content: " ";
+    display: block;
+    clear: both;
+  }
+  @media (max-width: 480) {
+    .container {
+      padding-left: ${gutterWidth / 2}px;
+      padding-right: ${gutterWidth / 2}px;
+    }
+  }
+  @media (min-width: 480) {
+    .container {
+      margin-left: ${gutterWidth}px;
+      margin-right: ${gutterWidth}px;
+    }
+  }
+  @media (min-width: 1080) {
+    .container {
+      margin-left: ${gutterWidth * 2}px;
+      margin-right: ${gutterWidth * 2}px;
+    }
+  }
+  @media(min-width: ${mediaQuery}) {
+    .container {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+`;
 
-const SectionHeader = ({ children, color }) => (
-  <div style={sectionHeaderStyle}>
+function markup(htmlContent) {
+  return {
+    __html: htmlContent
+  };
+}
+
+const Container = ({ children, id, className, style }) => (
+  <div id={id} className={cn("container", className)} style={style}>
+    <style dangerouslySetInnerHTML={markup(styles)} />
+
     {children}
   </div>
 );
 
-SectionHeader.propTypes = {
-  children: PropTypes.node
+Container.propTypes = {
+  children: PropTypes.node.isRequired,
+  id: PropTypes.string,
+  className: PropTypes.string,
+  style: PropTypes.objectOf(PropTypes.object)
 };
 
-export default SectionHeader;
+export default Radium(Container);

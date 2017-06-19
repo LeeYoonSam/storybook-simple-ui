@@ -1,32 +1,133 @@
-import React from "react";
+import React, {
+  Children,
+  Component,
+  PropTypes,
+  cloneElement,
+  createElement,
+  isValidElement
+} from "react";
+
 import Radium from "radium";
-import PropTypes from "prop-types";
-import Text from "../Text";
-import { white, geyser, shuttleGray } from "../../style/color";
-import { borderWidth } from "../../style/border";
+import { Navigation } from "../Navigation";
+import TabPanel from "./tabPanel";
+import { propStyle } from "../../lib/utils";
 
-const tabsStyle = {
-  display: "flex",
-  marginBottom: "2rem",
-  padding: "1rem",
-  width: "100%",
-  backgroundColor: white,
-  boxSizing: "border-box"
-};
+class Tabs extends Component {
+  constructor(props) {
+    super(props);
 
-const Tabs = ({ title, color }) => (
-  <div style={tabsStyle}>
-    <Text color={color} size={"large"} weight={"bold"}>{title}</Text>
-  </div>
-);
+    this.state = {
+      selectedIndex: this.findSelectedTab()
+    };
+
+    this.setSelectedIndex = this.setSelectedIndex.bind(this);
+    this.findSelectedTab = this.findSelectedTab.bind(this);
+    this.getTabs = this.getTabs.bind(this);
+  }
+
+  setSelectedIndex(index) {
+    this.setState({
+      selectedIndex: index
+    });
+  }
+
+  getTabs() {
+    const tabs = [];
+
+    Children.forEach(this.props.children, tab => {
+      if (isValidElement(tab)) {
+        tabs.push(tab);
+      }
+    });
+
+    return tabs;
+  }
+
+  findSelectedTab() {
+    let selectedIndex = 0;
+
+    if (!this.props.children) {
+      return null;
+    }
+
+    Children.forEach(this.props.children, (child, index) => {
+      if (child && child.props.active) {
+        selectedIndex = index;
+      }
+    });
+
+    return selectedIndex;
+  }
+
+  render() {
+    const { id, navigationHeight, navigationSticky, style } = this.props;
+    const { selectedIndex } = this.state;
+    const tabContent = [];
+
+    const tabs = this.getTabs().map((tab, index) => {
+      tabContent.push(
+        tab.props.children
+          ? createElement(
+              TabPanel,
+              {
+                key: index,
+                id: `${id}-content-${index + 1}`,
+                "aria-labelledby": `${id}-tab-${index + 1}`,
+                "aria-hidden": !(index === selectedIndex),
+                style: {
+                  display: index === selectedIndex ? "block" : "none"
+                }
+              },
+              tab.props.children
+            )
+          : null
+      );
+
+      return cloneElement(tab, {
+        key: index,
+        id: `${id}-tab-${index + 1}`,
+        role: "tab",
+        "aria-controls": `${id}-content-${index + 1}`,
+        "aria-expanded": selectedIndex === index,
+        "aria-selected": selectedIndex === index,
+        active: selectedIndex === index,
+        onClick: () => {
+          this.setSelectedIndex(index);
+        }
+      });
+    });
+
+    return (
+      <div className="Tabs" id={id} role="tablist" style={style}>
+        <Navigation height={navigationHeight} sticky={navigationSticky}>
+          {tabs}
+        </Navigation>
+
+        <div>
+          {tabContent}
+        </div>
+      </div>
+    );
+  }
+}
 
 Tabs.propTypes = {
-  title: PropTypes.string,
-  subtitle: PropTypes.string
+  id: PropTypes.string.isRequired,
+  children: (props, propName, componentName) => {
+    const prop = props[propName];
+    let error = null;
+
+    Children.forEach(prop, child => {
+      if (child.type !== Tab) {
+        error = new Error(`${componentName} children should be of type "Tab".`);
+      }
+    });
+
+    return error;
+  },
+  navigationHeight: PropTypes.number,
+  navigationSticky: PropTypes.bool,
+  style: propStyle
 };
 
-Tabs.defaultProps = {
-  title: "Header"
-};
-
-export default Tabs;
+export default Radium(Tabs);
